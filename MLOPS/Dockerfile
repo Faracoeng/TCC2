@@ -1,0 +1,1 @@
+# Mover o logging.conf para 
