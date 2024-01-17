@@ -17,11 +17,12 @@ autoencoder = AnomalyDetector()
 # Classe para representar os 140 pontos do ECG, e realziar as devidas tratativas no dados
 class ECG:
     # Inferencia
-    def get_ECG_curdate_data(self):
+    def get_ECG_inference_data(self):
         try:
             engine_DB = get_engine()
             #ecg_query = text("SELECT * FROM ECG WHERE dt_measure=CURDATE()")
-            ecg_query = text("SELECT * FROM ECG")
+            #ecg_query = text("SELECT * FROM ECG")
+            ecg_query = text("SELECT * FROM ECG ORDER BY dt_measure DESC LIMIT 1")
             dataframe = pd.read_sql(ecg_query, engine_DB)
             # Pegando apenas os 140 pontos do ECG
             dataframe = dataframe.iloc[:, :-2]

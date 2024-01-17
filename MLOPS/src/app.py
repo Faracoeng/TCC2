@@ -253,9 +253,11 @@ def get_model_threshold(tag):
         return None
 
 def inference_manager():
-    raw_data= ecg.get_ECG_curdate_data()
-    #print(raw_data)
+    raw_data= ecg.get_ECG_inference_data()
+    print(raw_data)
     data = ecg.get_ecg_points(raw_data)
+    print("----------Pontos do ECG------------")
+    print(data)
 
     try:
         # Carregar o modelo
