@@ -22,7 +22,7 @@ class ECG:
             engine_DB = get_engine()
             #ecg_query = text("SELECT * FROM ECG WHERE dt_measure=CURDATE()")
             #ecg_query = text("SELECT * FROM ECG")
-            ecg_query = text("SELECT * FROM ECG ORDER BY dt_measure DESC LIMIT 1")
+            ecg_query = text("SELECT * FROM Inference_ECG ORDER BY dt_measure DESC LIMIT 1")
             dataframe = pd.read_sql(ecg_query, engine_DB)
             # Pegando apenas os 140 pontos do ECG
             dataframe = dataframe.iloc[:, :-2]

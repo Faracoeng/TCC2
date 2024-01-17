@@ -253,12 +253,7 @@ def get_model_threshold(tag):
         return None
 
 def inference_manager():
-    raw_data= ecg.get_ECG_inference_data()
-    print(raw_data)
-    data = ecg.get_ecg_points(raw_data)
-    print("----------Pontos do ECG------------")
-    print(data)
-
+    data= ecg.get_ECG_inference_data()
     try:
         # Carregar o modelo
         model = load_model_from_database(get_model_tag())
@@ -267,16 +262,15 @@ def inference_manager():
             # Realizar inferência nos novos dados
             predictions = model.predict(data)
             data_reconstructions_loss = tf.keras.losses.mae(predictions, data)
-            #print("data_reconstructions_loss")
-            #print(data_reconstructions_loss)
             #inference_threshold = np.mean(data_reconstructions_loss) + np.std(data_reconstructions_loss)
             model_threshold = get_model_threshold(get_model_tag())
 
             # Se o erro da inferência for maior que o threshold do modelo utilizado, então é uma anomalia
+            print(f"data_reconstructions_loss é:   ---> {data_reconstructions_loss}")
+            print(f"model_threshold é:   ---> {model_threshold}")
             if data_reconstructions_loss > model_threshold:
                 print("Anomalia detectada no ECG")
             logger.info("Inferência concluída com sucesso")
-            print(predictions)
         else:
             logger.error("Falha ao realizar inferência. Modelo não encontrado.")
             return None
