@@ -1,6 +1,6 @@
 import os
 from models.autoencoder import AnomalyDetector
-from datetime import date, datetime
+from datetime import datetime
 from utils.ecg import ECG
 from utils.model import *
 import pandas as pd
@@ -9,10 +9,7 @@ import tensorflow as tf
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 import logging.config
 from database import *
-import pickle  # Para serializar os pesos do modelo
-#from scripts.inference import *
-#from scripts.train_model import *
-
+import pickle
 
 logging.config.fileConfig('logging.conf')
 # No docker
@@ -54,8 +51,6 @@ def get_train_data():
     except Exception as e:
         logger.error("Certifique-se de que as datas estão no formato 'YYYY-MM-DD'.")
 
-
-
 def predict(model, data, threshold):
   reconstructions = model(data)
   loss = tf.keras.losses.mae(reconstructions, data)
@@ -71,11 +66,7 @@ def get_model_stats(predictions, labels):
 
     return accuracy, precision, recall
 
-def get_model_tag():
-    model_tag = "modelo1"#os.environ.get('TAG')
-    return model_tag
-
-def train_manager():
+def train_manager(model_tag):
     try:
         raw_data = get_train_data()
         labels = ecg.get_labels(raw_data)
@@ -168,9 +159,8 @@ def train_manager():
 
 
         # Salvar no banco max/min value, threshold e modelo
-        tag = get_model_tag()  # Tag para diferenciar qual modelo usar
 
-        save_model_to_database(tag, max_value_python, min_value_python, threshold, model_weights, accuracy, precision, recall)
+        save_model_to_database(model_tag, max_value_python, min_value_python, threshold, model_weights, accuracy, precision, recall)
 
     except Exception as e:
         logger.error(f"Erro ao criar modelo: {e}")
@@ -199,85 +189,20 @@ def save_model_to_database(tag, max_value, min_value, threshold, model_weights, 
         session.add(model_info)
         session.commit()
 
-        logger.info(f"Model information and statistics saved to the database with tag '{tag}'")
+        logger.info(f"Modelo e estatisticas salvas na base com a tag '{tag}'")
 
     except Exception as e:
-        logger.error(f"Error saving model information and statistics to the database: {str(e)}")
+        logger.error(f"Erro ao salvar o modelo na base: {str(e)}")
 
 
-def load_model_from_database(tag):
-    try:
-        engine = create_database_engine(database_configs)
-        Session = sessionmaker(bind=engine)
-        session = Session()
-
-        model_info = session.query(Model).filter_by(tag=tag).first()
-
-        if model_info:
-            model = AnomalyDetector()
-            # Certifique-se de que os pesos do modelo são criados chamando a função build() ou
-            # passando um conjunto de dados de treinamento durante a criação do modelo.
-            model.build((1, 140))  # Substitua input_dim pelo número de recursos do seu modelo
-            model.set_weights(pickle.loads(model_info.model_weights))
-            return model
-        else:
-            logger.error(f"Modelo com a tag '{tag}' não encontrado na base de dados.")
-            return None
-
-    except Exception as e:
-        logger.error(f"Erro ao realizar inferência: {str(e)}")
-        return None
-
-def get_model_threshold(tag):
-    try:
-        engine_DB = get_engine()
-        Session = sessionmaker(bind=engine_DB)
-        session = Session()
-
-        model_info = session.query(Model).filter_by(tag=tag).first()
-
-        if model_info:
-            return model_info.threshold
-        else:
-            logger.error(f"Modelo com a tag '{tag}' não encontrado na base de dados.")
-            return None
-
-    except Exception as e:
-        logger.error(f"Erro ao realizar inferência: {str(e)}")
-        return None
-
-def inference_manager():
-    data= ecg.get_ECG_inference_data()
-    try:
-        # Carregar o modelo
-        model = load_model_from_database(get_model_tag())
-
-        if model:
-            # Realizar inferência nos novos dados
-            predictions = model.predict(data)
-            data_reconstructions_loss = tf.keras.losses.mae(predictions, data)
-            #inference_threshold = np.mean(data_reconstructions_loss) + np.std(data_reconstructions_loss)
-            model_threshold = get_model_threshold(get_model_tag())
-
-            # Se o erro da inferência for maior que o threshold do modelo utilizado, então é uma anomalia
-            print(f"data_reconstructions_loss é:   ---> {data_reconstructions_loss}")
-            print(f"model_threshold é:   ---> {model_threshold}")
-            print()
-            if data_reconstructions_loss > model_threshold:
-                print("Anomalia detectada no ECG")
-            logger.info("Inferência concluída com sucesso")
-        else:
-            logger.error("Falha ao realizar inferência. Modelo não encontrado.")
-            return None
-
-    except Exception as e:
-        logger.error(f"Erro ao realizar inferencia: {str(e)}")
-        return None
-    
 
 
-today = date.today().strftime("%Y-%m-%d")
 
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        logger.error("Por favor, forneça o nome do modelo como argumento.")
+        sys.exit(1)
 
-inference_manager()
-#train_manager()
+    model_tag_argument = sys.argv[1]
+    logger.info(f"Argumento do modelo recebido: {model_tag_argument}")
+    train_manager(model_tag_argument)

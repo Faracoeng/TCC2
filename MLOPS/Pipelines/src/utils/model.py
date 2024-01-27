@@ -7,8 +7,8 @@ Base = declarative_base()
 class Model(Base):
     __tablename__ = 'Model'
     
-    id = Column(Integer, primary_key=True, index=True)
-    tag = Column(String(80))
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    tag = Column(String(80), primary_key=True)
     max_value = Column(Float)
     min_value = Column(Float)
     threshold = Column(Float)
