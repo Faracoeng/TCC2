@@ -18,3 +18,4 @@ uvicorn
 #cryptographyhy
 pymysql
 python-dotenv
+streamlit==1.30.0

@@ -14,12 +14,18 @@ logger = logging.getLogger()
 #  Carregando variáveis de ambiente versão Dockerizada
 try:
     database_configs = {
-        "host": os.environ.get('ORIGEM_MYSQL_HOST'),
-        "port": os.environ.get('ORIGEM_MYSQL_PORT'),
-        "charset": os.environ.get('ORIGEM_MYSQL_CHARSET'),
-        "database": os.environ.get('ORIGEM_MYSQL_DATABASE'),
-        "user": os.environ.get('ORIGEM_MYSQL_USER'),
-        "password": os.environ.get('ORIGEM_MYSQL_PASSWORD')
+        #"host": os.environ.get('ORIGEM_MYSQL_HOST'),
+        "host": "localhost",    
+        #"port": os.environ.get('ORIGEM_MYSQL_PORT'),
+        "port": "3306",
+        #"charset": os.environ.get('ORIGEM_MYSQL_CHARSET'),
+        "charset": "utf8",
+        #"database": os.environ.get('ORIGEM_MYSQL_DATABASE'),
+        "database": "Results",
+        #"user": os.environ.get('ORIGEM_MYSQL_USER'),
+        "user": "datawarehouse_user",
+        #"password": os.environ.get('ORIGEM_MYSQL_PASSWORD')
+        "password": "admin123"
     }
     logger.info("Variáveis de ambiente database carregadas com sucesso")
 
