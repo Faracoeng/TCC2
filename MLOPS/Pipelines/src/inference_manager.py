@@ -7,6 +7,8 @@ import tensorflow as tf
 import logging.config
 from database import *
 import pickle
+import time
+from front_end import *
 
 logging.config.fileConfig('logging.conf')
 # No docker
@@ -18,7 +20,7 @@ ecg = ECG()
 
 def load_model_from_database(tag):
     try:
-        engine = create_database_engine(database_configs)
+        engine = create_database_engine(db_origem)
         Session = sessionmaker(bind=engine)
         session = Session()
 
@@ -41,9 +43,9 @@ def load_model_from_database(tag):
 
 def get_model_threshold(tag):
     try:
-        engine_DB = get_engine()
-        Session = sessionmaker(bind=engine_DB)
-        session = Session()
+        
+        #Session = sessionmaker(bind=engine_orig)
+        session = get_session_Pipelines() #Session()
 
         model_info = session.query(Model).filter_by(tag=tag).first()
 
@@ -131,6 +133,7 @@ def inference_manager(model_tag):
             
             api_client(prediction_data, api_environment['api_host'], api_environment['api_port'], api_environment['predictions_route'])
 
+            time.sleep(2)
 
             logger.info("Inferência concluída com sucesso")
         else:

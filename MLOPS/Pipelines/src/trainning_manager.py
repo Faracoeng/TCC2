@@ -169,10 +169,10 @@ def train_manager(model_tag):
 
 def save_model_to_database(tag, max_value, min_value, threshold, model_weights, accuracy, precision, recall):
     try:
-        engine = create_database_engine(database_configs)
-        Base.metadata.create_all(engine)
+        #engine = create_database_engine(db_origem)
+        Base.metadata.create_all(engine_Pipelines)
 
-        Session = sessionmaker(bind=engine)
+        Session = sessionmaker(bind=engine_Pipelines)
         session = Session()
 
         model_info = Model(

@@ -19,11 +19,11 @@ class ECG:
     # Inferencia
     def get_ECG_inference_data(self):
         try:
-            engine_DB = get_engine()
+            #engine_DB = get_engine()
             #ecg_query = text("SELECT * FROM ECG WHERE dt_measure=CURDATE()")
             #ecg_query = text("SELECT * FROM ECG")
             ecg_query = text("SELECT * FROM Inference_ECG ORDER BY dt_measure DESC LIMIT 1")
-            dataframe = pd.read_sql(ecg_query, engine_DB)
+            dataframe = pd.read_sql(ecg_query, engine_Pipelines)
             # Pegando apenas os 140 pontos do ECG
             dataframe = dataframe.iloc[:, :-2]
             raw_data = dataframe.values
@@ -37,10 +37,10 @@ class ECG:
     # Modelo
     def get_ECG_train_data(self, begin_date, end_date):
         try:
-            engine_DB = get_engine()
+            #engine_DB = get_engine()
             ecg_query = text(f"SELECT * FROM ECG WHERE dt_measure BETWEEN '{begin_date}' AND '{end_date}'")
             #ecg_query = text("SELECT * FROM ECG")
-            dataframe = pd.read_sql(ecg_query, engine_DB)
+            dataframe = pd.read_sql(ecg_query, engine_Pipelines)
             # Pegando apenas os 140 pontos do ECG mais o rotulo
             dataframe = dataframe.iloc[:, :-2]
             raw_data = dataframe.values
