@@ -89,7 +89,20 @@ def plot_and_update_data():
         # Atualizar o banco de dados ou fazer qualquer ação necessária com o dataframe atualizado
         # (substitua esta parte pelo código específico do seu aplicativo)
         st.write("Feedback enviado para o backend. Conjunto de dados atualizado e inserido na base de treinamento:")
-        st.write(original_ecg_dataframe)
+        insert_dataframe_to_database(get_session_Pipelines(), original_ecg_dataframe)
+        #st.write(original_ecg_dataframe)
 
 
-plot_and_update_data()
+
+def insert_dataframe_to_database(session, dataframe):
+    try:
+        # Converta o DataFrame em uma tabela SQL usando o método to_sql do pandas
+        dataframe.to_sql('ECG', con=session.get_bind(), if_exists='append', index=False)
+        logger.info("DataFrame inserido na tabela ECG com sucesso.")
+    except Exception as e:
+        logger.error(f"Erro ao inserir DataFrame na tabela ECG: {str(e)}")
+
+
+
+
+#plot_and_update_data()

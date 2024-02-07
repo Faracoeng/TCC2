@@ -11,9 +11,9 @@ import logging.config
 from database import *
 import pickle
 
-logging.config.fileConfig('logging.conf')
+#logging.config.fileConfig('logging.conf')
 # No docker
-#logging.config.fileConfig('/app/src/logging.conf')
+logging.config.fileConfig('/app/src/logging.conf')
 logger = logging.getLogger()
 
 autoencoder = AnomalyDetector()
@@ -23,14 +23,14 @@ ecg = ECG()
 def get_environment_variables():
     try:
         processing_variables = {
-            "begin_date": "2023-11-24",#os.environ.get('BEGIN_DATE'),
-            "end_date": "2023-11-28",#os.environ.get('END_DATE'),
-            "test_size": 0.2,#os.environ.get('TEST_SIZE'),
-            "random_state": 21,#os.environ.get('RANDOM_STATE')
-            "optimizer": "adam",#os.environ.get('OPTIMIZER')
-            "loss_function": "mae", #os.environ.get('LOSS_FUNCTION')
-            "epochs": 20,#os.environ.get('EPOCHS')
-            "batch_size": 512#os.environ.get('BATCH_SIZE')
+            "begin_date": os.environ.get('BEGIN_DATE'),#"2023-11-24",#os.environ.get('BEGIN_DATE'),
+            "end_date": os.environ.get('END_DATE'),# "2023-11-28",#os.environ.get('END_DATE'),
+            "test_size": os.environ.get('TEST_SIZE'),#0.2,#os.environ.get('TEST_SIZE'),
+            "random_state": os.environ.get('RANDOM_STATE'),#21,#os.environ.get('RANDOM_STATE')
+            "optimizer": os.environ.get('OPTIMIZER'),#"adam",#os.environ.get('OPTIMIZER')
+            "loss_function": os.environ.get('LOSS_FUNCTION'),#"mae", #os.environ.get('LOSS_FUNCTION')
+            "epochs":os.environ.get('EPOCHS'),# 20,#os.environ.get('EPOCHS')
+            "batch_size": os.environ.get('BATCH_SIZE'),#512#os.environ.get('BATCH_SIZE')
         }
         logger.info("Variáveis de ambiente de processamento dos dados carregadas com sucesso")
 

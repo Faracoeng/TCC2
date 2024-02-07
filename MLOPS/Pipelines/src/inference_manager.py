@@ -10,9 +10,9 @@ import pickle
 import time
 from front_end import *
 
-logging.config.fileConfig('logging.conf')
+#logging.config.fileConfig('logging.conf')
 # No docker
-#logging.config.fileConfig('/app/src/logging.conf')
+logging.config.fileConfig('/app/src/logging.conf')
 logger = logging.getLogger()
 
 autoencoder = AnomalyDetector()
@@ -62,10 +62,10 @@ def get_model_threshold(tag):
 def get_api_environment():
     try:
         api_envs = {
-            "api_port": "5000",#os.environ.get('API_PORT'),
-            "api_host": "localhost",#os.environ.get('API_HOST'),
-            "predictions_route": "/predictions",#os.environ.get('PREDICT_ROUTE'),
-            "ecg_route": "/ecg"#os.environ.get('ECG_ROUTE')
+            "api_port": os.environ.get('API_PORT'),#"5000",#os.environ.get('API_PORT'),
+            "api_host": os.environ.get('API_HOST'),#"localhost",#os.environ.get('API_HOST'),
+            "predictions_route": os.environ.get('PREDICT_ROUTE'),#"/predictions",#os.environ.get('PREDICT_ROUTE'),
+            "ecg_route": os.environ.get('ECG_ROUTE')#"/ecg"#os.environ.get('ECG_ROUTE')
         }
         logger.info("Variáveis de ambiente da API carregadas com sucesso")
 

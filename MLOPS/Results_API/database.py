@@ -6,26 +6,26 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 
-logging.config.fileConfig('logging.conf')
+#logging.config.fileConfig('logging.conf')
 # No docker
-#logging.config.fileConfig('/app/src/logging.conf')
+logging.config.fileConfig('/app/src/logging.conf')
 logger = logging.getLogger()
     
 #  Carregando variáveis de ambiente versão Dockerizada
 try:
     database_configs = {
-        #"host": os.environ.get('ORIGEM_MYSQL_HOST'),
-        "host": "localhost",    
-        #"port": os.environ.get('ORIGEM_MYSQL_PORT'),
-        "port": "3306",
-        #"charset": os.environ.get('ORIGEM_MYSQL_CHARSET'),
-        "charset": "utf8",
-        #"database": os.environ.get('ORIGEM_MYSQL_DATABASE'),
-        "database": "Results",
-        #"user": os.environ.get('ORIGEM_MYSQL_USER'),
-        "user": "datawarehouse_user",
-        #"password": os.environ.get('ORIGEM_MYSQL_PASSWORD')
-        "password": "admin123"
+        "host": os.environ.get('ORIGEM_MYSQL_HOST'),
+        #"host": "localhost",    
+        "port": os.environ.get('ORIGEM_MYSQL_PORT'),
+        #"port": "3306",
+        "charset": os.environ.get('ORIGEM_MYSQL_CHARSET'),
+        #"charset": "utf8",
+        "database": os.environ.get('ORIGEM_MYSQL_DATABASE'),
+        #"database": "Results",
+        "user": os.environ.get('ORIGEM_MYSQL_USER'),
+        #"user": "datawarehouse_user",
+        "password": os.environ.get('ORIGEM_MYSQL_PASSWORD')
+        #"password": "admin123"
     }
     logger.info("Variáveis de ambiente database carregadas com sucesso")
 

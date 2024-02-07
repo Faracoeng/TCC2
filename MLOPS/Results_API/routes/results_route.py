@@ -1,5 +1,3 @@
-# No arquivo routes.py
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from models.ecg import InferenceECG
@@ -10,7 +8,8 @@ import logging.config
 from database import get_session
 
 # Carregar a configuração do logger a partir do arquivo logging.conf
-logging.config.fileConfig('logging.conf')
+#logging.config.fileConfig('logging.conf')
+logging.config.fileConfig('/app/src/logging.conf')
 logger = logging.getLogger('fastapi')
 
 router = APIRouter()
@@ -45,4 +44,3 @@ def create_inference_ecg(inference_data: InferenceECGCreateSchema, db: Session =
         traceback.print_exc()  # Imprime o traceback completo no console
         logger.error(f"Erro ao criar a Inferência ECG: {str(e)}")
         raise HTTPException(status_code=500, detail="Erro ao criar a Inferência ECG")
-
