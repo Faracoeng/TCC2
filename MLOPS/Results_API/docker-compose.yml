@@ -9,7 +9,7 @@ services:
       context: ./
       dockerfile: Dockerfile
     volumes:
-      - .:/app
+      - .:/src
     network_mode: host
     logging:
       driver: json-file
