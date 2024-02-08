@@ -75,12 +75,17 @@ def get_api_environment():
     return api_envs
 
 def api_client(data, host, port, route):
-    
-    client = FastAPIClient()
-    client.set_host(host)
-    client.set_port(port)
-    client.send_api_post(route, data)
-    logger.info("Post enviado com sucesso para a API")
+    try:
+        client = FastAPIClient()
+        client.set_host(host)
+        client.set_port(port)
+        logger.info(f"Enviando dados para a rota {route}.")
+        print(client.get_base_url())
+        response = client.send_api_post(route, data)
+        logger.info("Resposta da API: %s", response)
+        logger.info("Post enviado com sucesso para a API")
+    except Exception as e:
+        logger.error(f"Erro ao enviar dados para a API: {e}")
 
 def inference_manager(model_tag):
 
@@ -113,11 +118,10 @@ def inference_manager(model_tag):
                 "values": data[0].tolist()  # Convertendo o array NumPy para uma lista
             }
             #print(inference_ecg_data)
-
-
             # Enviando dados para a API (ECG)
-            api_client(inference_ecg_data, api_environment['api_host'], api_environment['api_port'], api_environment['ecg_route'])
 
+            api_client(inference_ecg_data, api_environment['api_host'], api_environment['api_port'], api_environment['ecg_route'])
+            
             # Enviar dados para a API (predictions)
             prediction_data = {
                 "dt_measure": datetime.utcnow().isoformat(),
@@ -125,16 +129,17 @@ def inference_manager(model_tag):
                 "values": [],  # Adicione esta linha para incluir a lista de valores
             }
 
+
             # Adicione os valores à lista
             enumerated_predictions = list(enumerate(predictions[0]))
             for i, value in enumerated_predictions:
                 prediction_data["values"].append(float(value))
 
-            
+          
             api_client(prediction_data, api_environment['api_host'], api_environment['api_port'], api_environment['predictions_route'])
-
+         
             time.sleep(2)
-
+            plot_and_update_data()
             logger.info("Inferência concluída com sucesso")
         else:
             logger.error("Falha ao realizar inferência. Modelo não encontrado.")

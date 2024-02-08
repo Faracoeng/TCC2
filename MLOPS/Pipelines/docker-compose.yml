@@ -1,12 +1,12 @@
 version: "3.9"
 
 services:
-  capture_agent:
+  pipelines:
     build:
       context: .
       dockerfile: Dockerfile
     #image: localhost:8882/pipelines:v0.0.1
-    restart: always
+    #restart: always
     network_mode: host
     env_file:
       - ./.env

@@ -25,7 +25,7 @@ class FastAPIClient:
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
-            logging.error(f"Erro ao enviar post para a API: {str(e.response.text)}")
+            logging.error(f"Erro ao enviar post para a API: {str(e)}")
             return None
 
     # def get_prediction_api(self, prediction_id):

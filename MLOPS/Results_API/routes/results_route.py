@@ -9,7 +9,7 @@ from database import get_session
 
 # Carregar a configuração do logger a partir do arquivo logging.conf
 #logging.config.fileConfig('logging.conf')
-logging.config.fileConfig('/app/src/logging.conf')
+logging.config.fileConfig('/app/logging.conf')
 logger = logging.getLogger('fastapi')
 
 router = APIRouter()

@@ -8,7 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 #logging.config.fileConfig('logging.conf')
 # No docker
-logging.config.fileConfig('/app/src/logging.conf')
+logging.config.fileConfig('/app/logging.conf')
 logger = logging.getLogger()
     
 #  Carregando variáveis de ambiente versão Dockerizada

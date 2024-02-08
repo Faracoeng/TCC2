@@ -71,8 +71,7 @@ def train_manager(model_tag):
         raw_data = get_train_data()
         labels = ecg.get_labels(raw_data)
         data = ecg.get_ecg_points(raw_data)
-        
-        train_data, test_data, train_labels, test_labels = ecg.get_train_test_split(data, labels, get_environment_variables()['test_size'], get_environment_variables()['random_state'])
+        train_data, test_data, train_labels, test_labels = ecg.get_train_test_split(data, labels, float(get_environment_variables()['test_size']), int(get_environment_variables()['random_state']))
              
         max_value, min_value = ecg.get_min_max_val(train_data)
 
@@ -119,8 +118,8 @@ def train_manager(model_tag):
         # shuffle=True: Embaralha os dados antes de cada época. 
         # Isso para garantir que o modelo não aprenda a ordem específica dos exemplos.
         history = autoencoder.fit(normal_train_data, normal_train_data, 
-                epochs=get_environment_variables()['epochs'], 
-                batch_size=get_environment_variables()['batch_size'],
+                epochs=int(get_environment_variables()['epochs']),
+                batch_size=int(get_environment_variables()['batch_size']),
                 validation_data=(normalazed_test_data, normalazed_test_data),
                 shuffle=True)
         # # Parte de Detecção de Anomalias

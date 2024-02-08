@@ -12,4 +12,7 @@ WORKDIR /app
 COPY . /app
 
 # Instalar as dependências
-RUN pip3 install -r requirements.txt
+RUN pip3 install -r src/requirements.txt
+
+# Define o comando de inicialização do Streamlit com CORS desabilitado e mantém o contêiner em execução
+CMD ["bash", "-c", "streamlit run src/front_end.py && sleep infinity"]

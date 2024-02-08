@@ -10,7 +10,7 @@ from routes.results_route import router
 
 # Carregar a configuração do logger a partir do arquivo logging.conf
 #logging.config.fileConfig('logging.conf')
-logging.config.fileConfig('/app/src/logging.conf')
+logging.config.fileConfig('/app/logging.conf')
 logger = logging.getLogger('fastapi')
 
 
