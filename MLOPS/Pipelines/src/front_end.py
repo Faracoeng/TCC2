@@ -4,10 +4,11 @@ from sqlalchemy import text
 import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
+from inference_manager import *
 
 # Carregar a configuração do logger a partir do arquivo logging.conf
-#logging.config.fileConfig('logging.conf')
-#logger = logging.getLogger('fastapi')
+logging.config.fileConfig('logging.conf')
+logger = logging.getLogger('fastapi')
 
 def get_ECG_inference_data():
     try:
@@ -50,24 +51,17 @@ def plot_and_update_data():
     # Obter dados do ECG e previsões
     pontos_ecg, model_tag, is_anomalous, original_ecg_dataframe = get_ECG_inference_data()
     pontos_predictions, model_tag_predictions = get_predictions()
+    print("Frontend------------------------------")
+    print(pontos_ecg)
+    print(pontos_predictions)
 
     # Calcular o erro absoluto entre o ECG original e as previsões
-    erro = np.abs(pontos_ecg - pontos_predictions)
-
-    # Criar gráfico
-    fig, ax = plt.subplots()
-    ax.plot(pontos_ecg, label='ECG Original')
-    ax.plot(pontos_predictions, label='Previsões')
-    ax.plot(erro, label='Erro Absoluto', linestyle='--', color='red')
-
-    # Adicionar legendas e rótulos
-    ax.legend()
-    ax.set_xlabel('Ponto no ECG')
-    ax.set_ylabel('Valor')
-    ax.set_title('Comparação entre ECG Original e Previsões com Erro Absoluto')
-
-    # Mostrar gráfico
-    st.pyplot(fig)
+    #erro = np.abs(pontos_ecg - pontos_predictions)
+    plt.plot(pontos_ecg, 'b')
+    plt.plot(pontos_predictions, 'r')
+    plt.fill_between(np.arange(len(pontos_ecg)), pontos_ecg, pontos_predictions, color='lightcoral')
+    plt.legend(labels=["Input", "Reconstruction", "Error"])
+    st.pyplot(plt.gcf())  # Exibe o gráfico no Streamlit
 
     # Adicionar um checkbox na interface do usuário
     is_anomalo = st.checkbox("O ECG é Anômalo?")
@@ -105,4 +99,4 @@ def insert_dataframe_to_database(session, dataframe):
 
 
 
-#plot_and_update_data()
+plot_and_update_data()

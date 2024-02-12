@@ -8,11 +8,11 @@ import logging.config
 from database import *
 import pickle
 import time
-from front_end import *
+#from front_end import *
 
-#logging.config.fileConfig('logging.conf')
+logging.config.fileConfig('logging.conf')
 # No docker
-logging.config.fileConfig('/app/src/logging.conf')
+#logging.config.fileConfig('/app/src/logging.conf')
 logger = logging.getLogger()
 
 autoencoder = AnomalyDetector()
@@ -62,10 +62,10 @@ def get_model_threshold(tag):
 def get_api_environment():
     try:
         api_envs = {
-            "api_port": os.environ.get('API_PORT'),#"5000",#os.environ.get('API_PORT'),
-            "api_host": os.environ.get('API_HOST'),#"localhost",#os.environ.get('API_HOST'),
-            "predictions_route": os.environ.get('PREDICT_ROUTE'),#"/predictions",#os.environ.get('PREDICT_ROUTE'),
-            "ecg_route": os.environ.get('ECG_ROUTE')#"/ecg"#os.environ.get('ECG_ROUTE')
+            "api_port": "5000",#os.environ.get('API_PORT'),
+            "api_host": "localhost",#os.environ.get('API_HOST'),
+            "predictions_route": "/predictions",#os.environ.get('PREDICT_ROUTE'),
+            "ecg_route": "/ecg"#os.environ.get('ECG_ROUTE')
         }
         logger.info("Variáveis de ambiente da API carregadas com sucesso")
 
@@ -90,6 +90,21 @@ def api_client(data, host, port, route):
 def inference_manager(model_tag):
 
     data= ecg.get_ECG_inference_data()
+    print("Dados originais")
+    print(data)
+    max_value, min_value = ecg.get_min_max_val(data)
+
+    # Convertendo o tensor para um tipo de dados Python nativo
+    max_value_inference = max_value.numpy()
+    min_value_inference = min_value.numpy()
+    print(max_value_inference)
+    print(min_value_inference)
+    
+    # Converter o tensor TensorFlow em um array NumPy
+    normalazed_inference_data = ecg.normalize_data(data, max_value_inference, min_value_inference).numpy()   
+    print("Dados normalizados")
+    print(normalazed_inference_data)
+
     try:
         # Carregar o modelo
         model = load_model_from_database(model_tag)
@@ -97,16 +112,21 @@ def inference_manager(model_tag):
         if model:
             
             api_environment = get_api_environment()
+
+            encoded_data = autoencoder.encoder(normalazed_inference_data).numpy()
+            reconstructions_data = autoencoder.decoder(encoded_data).numpy()
+            print("Reconstruções")
+            print(reconstructions_data)
             # Realizar inferência nos novos dados
-            predictions = model.predict(data)
-            data_reconstructions_loss = tf.keras.losses.mae(predictions, data)
+            predictions = model.predict(normalazed_inference_data)
+            data_reconstructions_loss = tf.keras.losses.mae(predictions, normalazed_inference_data)
             #inference_threshold = np.mean(data_reconstructions_loss) + np.std(data_reconstructions_loss)
             model_threshold = get_model_threshold(model_tag)
 
             # Se o erro da inferência for maior que o threshold do modelo utilizado, então é uma anomalia
             print(f"data_reconstructions_loss é:   ---> {data_reconstructions_loss}")
             print(f"model_threshold é:   ---> {model_threshold}")
-            #print(predictions)
+
 
             # Se o erro da inferência for maior que o threshold do modelo utilizado, então é uma anomalia
             anomaly_detected = float(data_reconstructions_loss) > float(model_threshold)
@@ -115,8 +135,10 @@ def inference_manager(model_tag):
                 "dt_measure": datetime.utcnow().isoformat(),
                 "is_anomalous": anomaly_detected,
                 "model_tag": model_tag,
-                "values": data[0].tolist()  # Convertendo o array NumPy para uma lista
+                "values": normalazed_inference_data[0].tolist()  # Convertendo o array NumPy para uma lista
             }
+
+            print(inference_ecg_data)
             #print(inference_ecg_data)
             # Enviando dados para a API (ECG)
 
@@ -126,7 +148,7 @@ def inference_manager(model_tag):
             prediction_data = {
                 "dt_measure": datetime.utcnow().isoformat(),
                 "model_tag": model_tag,
-                "values": [],  # Adicione esta linha para incluir a lista de valores
+                "values": [],  
             }
 
 
@@ -135,11 +157,12 @@ def inference_manager(model_tag):
             for i, value in enumerated_predictions:
                 prediction_data["values"].append(float(value))
 
-          
             api_client(prediction_data, api_environment['api_host'], api_environment['api_port'], api_environment['predictions_route'])
          
             time.sleep(2)
-            plot_and_update_data()
+            
+            #plot_and_update_data()
+
             logger.info("Inferência concluída com sucesso")
         else:
             logger.error("Falha ao realizar inferência. Modelo não encontrado.")
