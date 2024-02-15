@@ -80,7 +80,6 @@ def api_client(data, host, port, route):
         client.set_host(host)
         client.set_port(port)
         logger.info(f"Enviando dados para a rota {route}.")
-        print(client.get_base_url())
         response = client.send_api_post(route, data)
         logger.info("Resposta da API: %s", response)
         logger.info("Post enviado com sucesso para a API")
@@ -90,20 +89,14 @@ def api_client(data, host, port, route):
 def inference_manager(model_tag):
 
     data= ecg.get_ECG_inference_data()
-    print("Dados originais")
-    print(data)
     max_value, min_value = ecg.get_min_max_val(data)
 
     # Convertendo o tensor para um tipo de dados Python nativo
     max_value_inference = max_value.numpy()
     min_value_inference = min_value.numpy()
-    print(max_value_inference)
-    print(min_value_inference)
     
     # Converter o tensor TensorFlow em um array NumPy
     normalazed_inference_data = ecg.normalize_data(data, max_value_inference, min_value_inference).numpy()   
-    print("Dados normalizados")
-    print(normalazed_inference_data)
 
     try:
         # Carregar o modelo
@@ -115,8 +108,6 @@ def inference_manager(model_tag):
 
             encoded_data = autoencoder.encoder(normalazed_inference_data).numpy()
             reconstructions_data = autoencoder.decoder(encoded_data).numpy()
-            print("Reconstruções")
-            print(reconstructions_data)
             # Realizar inferência nos novos dados
             predictions = model.predict(normalazed_inference_data)
             data_reconstructions_loss = tf.keras.losses.mae(predictions, normalazed_inference_data)
@@ -127,9 +118,13 @@ def inference_manager(model_tag):
             print(f"data_reconstructions_loss é:   ---> {data_reconstructions_loss}")
             print(f"model_threshold é:   ---> {model_threshold}")
 
-
+            print(data_reconstructions_loss)
             # Se o erro da inferência for maior que o threshold do modelo utilizado, então é uma anomalia
             anomaly_detected = float(data_reconstructions_loss) > float(model_threshold)
+            print(anomaly_detected)
+            print("*-------")
+            print(tf.math.less(data_reconstructions_loss, model_threshold))
+
             # Montar os dados para API (ECG)
             inference_ecg_data = {
                 "dt_measure": datetime.utcnow().isoformat(),
@@ -138,11 +133,9 @@ def inference_manager(model_tag):
                 "values": normalazed_inference_data[0].tolist()  # Convertendo o array NumPy para uma lista
             }
 
-            print(inference_ecg_data)
-            #print(inference_ecg_data)
             # Enviando dados para a API (ECG)
 
-            api_client(inference_ecg_data, api_environment['api_host'], api_environment['api_port'], api_environment['ecg_route'])
+            #api_client(inference_ecg_data, api_environment['api_host'], api_environment['api_port'], api_environment['ecg_route'])
             
             # Enviar dados para a API (predictions)
             prediction_data = {
@@ -157,7 +150,7 @@ def inference_manager(model_tag):
             for i, value in enumerated_predictions:
                 prediction_data["values"].append(float(value))
 
-            api_client(prediction_data, api_environment['api_host'], api_environment['api_port'], api_environment['predictions_route'])
+            #api_client(prediction_data, api_environment['api_host'], api_environment['api_port'], api_environment['predictions_route'])
          
             time.sleep(2)
             

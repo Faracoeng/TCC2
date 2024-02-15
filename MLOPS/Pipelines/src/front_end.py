@@ -8,7 +8,7 @@ from inference_manager import *
 
 # Carregar a configuração do logger a partir do arquivo logging.conf
 logging.config.fileConfig('logging.conf')
-logger = logging.getLogger('fastapi')
+#logger = logging.getLogger('fastapi')
 
 def get_ECG_inference_data():
     try:
@@ -51,9 +51,14 @@ def plot_and_update_data():
     # Obter dados do ECG e previsões
     pontos_ecg, model_tag, is_anomalous, original_ecg_dataframe = get_ECG_inference_data()
     pontos_predictions, model_tag_predictions = get_predictions()
-    print("Frontend------------------------------")
-    print(pontos_ecg)
-    print(pontos_predictions)
+
+    print(is_anomalous)
+    # Adicionar um título dinâmico com base na anomalia do ECG
+    #if is_anomalous:
+    plt.title('ECG definido como normal')
+    #else:
+    #    plt.title('ECG definido como Normal')
+
 
     # Calcular o erro absoluto entre o ECG original e as previsões
     #erro = np.abs(pontos_ecg - pontos_predictions)
@@ -64,7 +69,7 @@ def plot_and_update_data():
     st.pyplot(plt.gcf())  # Exibe o gráfico no Streamlit
 
     # Adicionar um checkbox na interface do usuário
-    is_anomalo = st.checkbox("O ECG é Anômalo?")
+    is_anomalo = st.checkbox("Auditoria humana sobre o resultado: O ECG é Anômalo?")
 
     # Adicionar um botão "OK"
     if st.button("OK"):
@@ -85,6 +90,8 @@ def plot_and_update_data():
         st.write("Feedback enviado para o backend. Conjunto de dados atualizado e inserido na base de treinamento:")
         insert_dataframe_to_database(get_session_Pipelines(), original_ecg_dataframe)
         #st.write(original_ecg_dataframe)
+        # Limpar a exibição do gráfico
+        plt.clf()
 
 
 
