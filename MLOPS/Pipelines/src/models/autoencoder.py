@@ -1,4 +1,3 @@
-
 import tensorflow as tf
 from tensorflow.keras import layers, losses
 from tensorflow.keras.datasets import fashion_mnist
