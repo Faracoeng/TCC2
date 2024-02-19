@@ -12,12 +12,12 @@ from database import *
 import pickle
 
 # Teste:
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
+#import matplotlib.pyplot as plt
+#from sklearn.model_selection import train_test_split
 
-logging.config.fileConfig('logging.conf')
+#logging.config.fileConfig('logging.conf')
 # No docker
-#logging.config.fileConfig('/app/src/logging.conf')
+logging.config.fileConfig('/app/src/logging.conf')
 logger = logging.getLogger()
 
 autoencoder = AnomalyDetector()
@@ -27,14 +27,14 @@ ecg = ECG()
 def get_environment_variables():
     try:
         processing_variables = {
-            "begin_date": "2023-11-24",#os.environ.get('BEGIN_DATE'),
-            "end_date":  "2023-11-28",#os.environ.get('END_DATE'),
-            "test_size": 0.2,#os.environ.get('TEST_SIZE'),
-            "random_state": 21,#os.environ.get('RANDOM_STATE')
-            "optimizer": "adam",#os.environ.get('OPTIMIZER')
-            "loss_function": "mae", #os.environ.get('LOSS_FUNCTION')
-            "epochs": 20,#os.environ.get('EPOCHS')
-            "batch_size": 512#os.environ.get('BATCH_SIZE')
+            "begin_date": os.environ.get('BEGIN_DATE'),#"2023-11-24",
+            "end_date":  os.environ.get('END_DATE'),#"2023-11-28",
+            "test_size": os.environ.get('TEST_SIZE'),#0.2,
+            "random_state": os.environ.get('RANDOM_STATE'),#21,
+            "optimizer": os.environ.get('OPTIMIZER'),#"adam",
+            "loss_function": os.environ.get('LOSS_FUNCTION'),#"mae", 
+            "epochs": os.environ.get('EPOCHS'),#20,
+            "batch_size": os.environ.get('BATCH_SIZE')#512
         }
         logger.info("Variáveis de ambiente de processamento dos dados carregadas com sucesso")
 
@@ -45,8 +45,8 @@ def get_environment_variables():
 
 def get_train_data():
     try:
-        start_date = "2023-11-24" #get_environment_variables()["begin_date"]
-        end_date = "2023-11-28"#get_environment_variables()["end_date"]
+        start_date = get_environment_variables()["begin_date"],#"2023-11-24" 
+        end_date = get_environment_variables()["end_date"],#"2023-11-28"
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
         raw_data = ecg.get_ECG_train_data(start_date, end_date)
@@ -61,9 +61,9 @@ def predict(model, data, threshold):
   return tf.math.less(loss, threshold)
 
 def get_model_stats(predictions, labels):
-    print("Accuracy = {}".format(accuracy_score(labels, predictions)))
-    print("Precision = {}".format(precision_score(labels, predictions)))
-    print("Recall = {}".format(recall_score(labels, predictions)))
+    logger.info("Accuracy = {}".format(accuracy_score(labels, predictions)))
+    logger.info("Precision = {}".format(precision_score(labels, predictions)))
+    logger.info("Recall = {}".format(recall_score(labels, predictions)))
     accuracy = accuracy_score(labels, predictions)
     precision = precision_score(labels, predictions)
     recall = recall_score(labels, predictions)
@@ -76,42 +76,7 @@ def train_manager(model_tag):
         raw_data = get_train_data()
         labels = ecg.get_labels(raw_data)
         data = ecg.get_ecg_points(raw_data)
-        #----------------Teste-----------------------------------------------------------
-        #dataframe = pd.read_csv('http://storage.googleapis.com/download.tensorflow.org/data/ecg.csv', header=None)
-        #raw_data = dataframe.values
-       
 
-        #         # The last element contains the labels
-        # labels = raw_data[:, -1]
-
-        # # The other data points are the electrocadriogram data
-        # data = raw_data[:, 0:-1]
-
-        # train_data, test_data, train_labels, test_labels = train_test_split(
-        #     data, labels, test_size=0.2, random_state=21
-        # )
-        # min_val = tf.reduce_min(train_data)
-        # max_val = tf.reduce_max(train_data)
-
-        # train_data = (train_data - min_val) / (max_val - min_val)
-        # test_data = (test_data - min_val) / (max_val - min_val)
-        # max_value_python = min_val.numpy()
-        # min_value_python = max_val.numpy()
-        # train_data = tf.cast(train_data, tf.float32)
-        # test_data = tf.cast(test_data, tf.float32)
-
-        # train_labels = train_labels.astype(bool)
-        # test_labels = test_labels.astype(bool)
-
-        # normal_train_data = train_data[train_labels]
-        # normal_test_data = test_data[test_labels]
-
-        # anomalous_train_data = train_data[~train_labels]
-        # anomalous_test_data = test_data[~test_labels]
-
-         #--------------------------------------------------------------------------------
-        #print(float(get_environment_variables()['test_size']))
-        #print(int(get_environment_variables()['random_state']))
         train_data, test_data, train_labels, test_labels = ecg.get_train_test_split(data, labels, float(get_environment_variables()['test_size']), int(get_environment_variables()['random_state']))
      
         max_value, min_value = ecg.get_min_max_val(train_data)
@@ -193,45 +158,19 @@ def train_manager(model_tag):
         print("Threshold: ", threshold)
 
         preds = predict(autoencoder, normalazed_test_data, threshold)
-        #preds = predict(autoencoder, test_data, threshold)
         
         accuracy, precision, recall = get_model_stats(preds, test_labels)
 
         # Salve os pesos do modelo
         model_weights = autoencoder.get_weights()
-        #print(model_weights)
         # Salvar no banco max/min value
         # Salvar no banco threshold
         # Salvar no banco modelo
 
-
         # Salvar no banco max/min value, threshold e modelo
-
         save_model_to_database(model_tag, max_value_python, min_value_python, threshold, model_weights, accuracy, precision, recall)
-        print("Meu dado")
-        data= ecg.get_ECG_inference_data()
-        print(data)
-        max_value, min_value = ecg.get_min_max_val(data)
-        normalazed_inference_data = ecg.normalize_data(data, max_value, min_value)
-        
-        print("Tratado")
-        print(normalazed_inference_data)
-
-        print("----o corret")
-        new_data = tf.expand_dims(normal_test_data[0], axis=0) 
-        predictions = autoencoder.predict(new_data)
-        print(new_data)
-        data_reconstructions_loss = tf.keras.losses.mae(predictions, new_data)
-        print(data_reconstructions_loss)
-
-        plt.plot(new_data[0], 'b')
-        plt.plot(predictions[0], 'r')
-        plt.fill_between(np.arange(140), predictions[0], new_data[0], color='lightcoral')
-        plt.legend(labels=["Input", "Reconstruction", "Error"])
-        plt.show()
-
-        
-        return autoencoder, train_data, test_data, train_labels, test_labels, normal_train_data, normal_test_data 
+       
+        #return autoencoder, train_data, test_data, train_labels, test_labels, normal_train_data, normal_test_data 
 
     except Exception as e:
         logger.error(f"Erro ao criar modelo: {e}")

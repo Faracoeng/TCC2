@@ -6,51 +6,51 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 
-logging.config.fileConfig('logging.conf')
+#logging.config.fileConfig('logging.conf')
 # No docker
-#logging.config.fileConfig('/app/src/logging.conf')
+logging.config.fileConfig('/app/src/logging.conf')
 logger = logging.getLogger()
     
 #  Carregando variáveis de ambiente versão Dockerizada
 
-try:
-    db_origem = {
-        "host":  "localhost",
-        "port": 3306,
-        "charset": "utf8",
-        "database": "Datawarehouse",
-        "user": "datawarehouse_user",
-        "password": "admin123"
-    }
-
-    db_destino = {
-        "host": "localhost",
-        "port": 3306,
-        "charset": "utf8",
-        "database": "Results",
-        "user": "datawarehouse_user",
-        "password": "admin123"
-    }
-
-
 # try:
 #     db_origem = {
-#         "host": os.environ.get('ORIGEM_MYSQL_HOST'),
-#         "port": os.environ.get('ORIGEM_MYSQL_PORT'),
-#         "charset": os.environ.get('ORIGEM_MYSQL_CHARSET'),
-#         "database": os.environ.get('ORIGEM_MYSQL_DATABASE'),
-#         "user": os.environ.get('ORIGEM_MYSQL_USER'),
-#         "password": os.environ.get('ORIGEM_MYSQL_PASSWORD')
+#         "host":  "localhost",
+#         "port": 3306,
+#         "charset": "utf8",
+#         "database": "Datawarehouse",
+#         "user": "datawarehouse_user",
+#         "password": "admin123"
 #     }
 
 #     db_destino = {
-#         "host": os.environ.get('DESTINO_MYSQL_HOST'),
-#         "port": os.environ.get('DESTINO_MYSQL_PORT'),
-#         "charset": os.environ.get('DESTINO_MYSQL_CHARSET'),
-#         "database": os.environ.get('DESTINO_MYSQL_DATABASE'),
-#         "user": os.environ.get('DESTINO_MYSQL_USER'),
-#         "password": os.environ.get('DESTINO_MYSQL_PASSWORD')
+#         "host": "localhost",
+#         "port": 3306,
+#         "charset": "utf8",
+#         "database": "Results",
+#         "user": "datawarehouse_user",
+#         "password": "admin123"
 #     }
+
+
+try:
+    db_origem = {
+        "host": os.environ.get('ORIGEM_MYSQL_HOST'),
+        "port": os.environ.get('ORIGEM_MYSQL_PORT'),
+        "charset": os.environ.get('ORIGEM_MYSQL_CHARSET'),
+        "database": os.environ.get('ORIGEM_MYSQL_DATABASE'),
+        "user": os.environ.get('ORIGEM_MYSQL_USER'),
+        "password": os.environ.get('ORIGEM_MYSQL_PASSWORD')
+    }
+
+    db_destino = {
+        "host": os.environ.get('DESTINO_MYSQL_HOST'),
+        "port": os.environ.get('DESTINO_MYSQL_PORT'),
+        "charset": os.environ.get('DESTINO_MYSQL_CHARSET'),
+        "database": os.environ.get('DESTINO_MYSQL_DATABASE'),
+        "user": os.environ.get('DESTINO_MYSQL_USER'),
+        "password": os.environ.get('DESTINO_MYSQL_PASSWORD')
+    }
 
     logger.info("Variáveis de ambiente carregadas para origem e destino")
 except Exception as e:

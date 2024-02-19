@@ -7,7 +7,9 @@ import numpy as np
 from inference_manager import *
 
 # Carregar a configuração do logger a partir do arquivo logging.conf
-logging.config.fileConfig('logging.conf')
+#logging.config.fileConfig('logging.conf')
+#No docker
+logging.config.fileConfig('/app/src/logging.conf')
 #logger = logging.getLogger('fastapi')
 
 def get_ECG_inference_data():
@@ -43,21 +45,36 @@ def get_predictions():
         logger.error(f"Erro ao obter Predictions para Frontend: {str(e)}")
 
 
-pontos_ecg, model_tag, is_anomalous, original_ecg_dataframe = get_ECG_inference_data()
-pontos_predictions, model_tag_predictions = get_predictions()
+#pontos_ecg, model_tag, is_anomalous, original_ecg_dataframe = get_ECG_inference_data()
+#pontos_predictions, model_tag_predictions = get_predictions()
+
+
+def undo_normalization(data, min_val, max_val):
+    """
+    Desfaz a normalização min-max em um conjunto de dados.
+    
+    Args:
+        data (numpy.ndarray): O conjunto de dados normalizado.
+        min_val (float): O valor mínimo do conjunto de dados original antes da normalização.
+        max_val (float): O valor máximo do conjunto de dados original antes da normalização.
+        
+    Returns:
+        numpy.ndarray: O conjunto de dados desnormalizado.
+    """
+    return (data * (max_val - min_val)) + min_val
 
 
 def plot_and_update_data():
     # Obter dados do ECG e previsões
     pontos_ecg, model_tag, is_anomalous, original_ecg_dataframe = get_ECG_inference_data()
     pontos_predictions, model_tag_predictions = get_predictions()
+    max_value, min_value = get_model_max_min_values(model_tag)
 
-    print(is_anomalous)
     # Adicionar um título dinâmico com base na anomalia do ECG
-    #if is_anomalous:
-    plt.title('ECG definido como normal')
-    #else:
-    #    plt.title('ECG definido como Normal')
+    if is_anomalous:
+        plt.title('ECG definido como Anômalo')
+    else:
+        plt.title('ECG definido como Normal')
 
 
     # Calcular o erro absoluto entre o ECG original e as previsões
@@ -67,9 +84,9 @@ def plot_and_update_data():
     plt.fill_between(np.arange(len(pontos_ecg)), pontos_ecg, pontos_predictions, color='lightcoral')
     plt.legend(labels=["Input", "Reconstruction", "Error"])
     st.pyplot(plt.gcf())  # Exibe o gráfico no Streamlit
-
+    pontos_ecg = undo_normalization(pontos_ecg, min_value, max_value)
     # Adicionar um checkbox na interface do usuário
-    is_anomalo = st.checkbox("Auditoria humana sobre o resultado: O ECG é Anômalo?")
+    is_anomalo = st.checkbox("Auditoria humana sobre o resultado. Selecione o checkbox para rotular o ECG como Anômalo!!!")
 
     # Adicionar um botão "OK"
     if st.button("OK"):
@@ -85,13 +102,15 @@ def plot_and_update_data():
 
         # Reorganizar as colunas para corresponder à estrutura da tabela ECG
         original_ecg_dataframe = original_ecg_dataframe[[col for col in range(1, 141)] + ['dt_measure']]
-        # Atualizar o banco de dados ou fazer qualquer ação necessária com o dataframe atualizado
-        # (substitua esta parte pelo código específico do seu aplicativo)
-        st.write("Feedback enviado para o backend. Conjunto de dados atualizado e inserido na base de treinamento:")
-        insert_dataframe_to_database(get_session_Pipelines(), original_ecg_dataframe)
+        print(original_ecg_dataframe)
+        # Desnormalizando para armazenar na tabela de treinamento
+        original_ecg_dataframe[1:140] = undo_normalization(original_ecg_dataframe[1:140], min_value, max_value)
+        print(original_ecg_dataframe)
+        #st.write("Feedback enviado para o backend. Conjunto de dados atualizado e inserido na base de treinamento:")
+        #insert_dataframe_to_database(get_session_Pipelines(), original_ecg_dataframe)
         #st.write(original_ecg_dataframe)
         # Limpar a exibição do gráfico
-        plt.clf()
+        #plt.clf()
 
 
 
