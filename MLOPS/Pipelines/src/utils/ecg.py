@@ -14,7 +14,7 @@ from models.autoencoder import AnomalyDetector
 
 autoencoder = AnomalyDetector()
 
-# Classe para representar os 140 pontos do ECG, e realziar as devidas tratativas no dados
+# Classe para representar os 140 pontos do ECG, e realizar as devidas tratativas no dados
 class ECG:
     # Inferencia
     def get_ECG_inference_data(self):
