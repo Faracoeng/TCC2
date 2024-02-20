@@ -5,6 +5,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 from inference_manager import *
+import sys
 
 # Carregar a configuração do logger a partir do arquivo logging.conf
 #logging.config.fileConfig('logging.conf')
@@ -45,10 +46,6 @@ def get_predictions():
         logger.error(f"Erro ao obter Predictions para Frontend: {str(e)}")
 
 
-#pontos_ecg, model_tag, is_anomalous, original_ecg_dataframe = get_ECG_inference_data()
-#pontos_predictions, model_tag_predictions = get_predictions()
-
-
 def undo_normalization(data, min_val, max_val):
     """
     Desfaz a normalização min-max em um conjunto de dados.
@@ -86,7 +83,7 @@ def plot_and_update_data():
     st.pyplot(plt.gcf())  # Exibe o gráfico no Streamlit
     pontos_ecg = undo_normalization(pontos_ecg, min_value, max_value)
     # Adicionar um checkbox na interface do usuário
-    is_anomalo = st.checkbox("Auditoria humana sobre o resultado. Selecione o checkbox para rotular o ECG como Anômalo!!!")
+    is_anomalo = st.checkbox("Auditoria humana sobre o resultado. Selecione o checkbox para rotular o ECG como Anômalo!!! Ou apenas clique em 'OK' para manter o rótulo defnido pelo Modelo.")
 
     # Adicionar um botão "OK"
     if st.button("OK"):
@@ -96,21 +93,21 @@ def plot_and_update_data():
                 original_ecg_dataframe.iloc[0, 2] = 1  
         else:
             original_ecg_dataframe.iloc[0, 2] = 0  
-        # Remover a primeira coluna (coluna 'id')
-        original_ecg_dataframe = original_ecg_dataframe.drop(columns=[0])
-
+        
+        # Remover a primeira coluna (coluna 'id')     
+        original_ecg_dataframe = original_ecg_dataframe.drop(columns=['id'])
+        # Remover a coluna 'model_tag'
+        original_ecg_dataframe = original_ecg_dataframe.drop(columns=['model_tag'])
 
         # Reorganizar as colunas para corresponder à estrutura da tabela ECG
-        original_ecg_dataframe = original_ecg_dataframe[[col for col in range(1, 141)] + ['dt_measure']]
-        print(original_ecg_dataframe)
+        original_ecg_dataframe = original_ecg_dataframe[['dt_measure', 'is_anomalous'] + [str(i) for i in range(140)]]        
         # Desnormalizando para armazenar na tabela de treinamento
-        original_ecg_dataframe[1:140] = undo_normalization(original_ecg_dataframe[1:140], min_value, max_value)
-        print(original_ecg_dataframe)
-        #st.write("Feedback enviado para o backend. Conjunto de dados atualizado e inserido na base de treinamento:")
-        #insert_dataframe_to_database(get_session_Pipelines(), original_ecg_dataframe)
-        #st.write(original_ecg_dataframe)
-        # Limpar a exibição do gráfico
-        #plt.clf()
+        original_ecg_dataframe.iloc[:, 2:] = undo_normalization(original_ecg_dataframe.iloc[:, 2:], min_value, max_value)
+        st.write("Feedback enviado para o backend. Conjunto de dados atualizado e inserido na base de treinamento:")
+        insert_dataframe_to_database(get_session_Pipelines(), original_ecg_dataframe)
+        st.write(original_ecg_dataframe)
+        # Encerrar a operação
+        sys.exit()
 
 
 

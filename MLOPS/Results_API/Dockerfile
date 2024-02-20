@@ -12,6 +12,7 @@ WORKDIR /app
 COPY . /app
 
 # Instalar as dependências
+RUN apt update && apt install -y vim
 RUN pip3 install -r requirements.txt
 
 # Comando para iniciar a aplicação

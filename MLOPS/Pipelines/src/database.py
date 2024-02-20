@@ -35,22 +35,21 @@ logger = logging.getLogger()
 
 try:
     db_origem = {
-        "host": os.environ.get('ORIGEM_MYSQL_HOST'),
-        "port": os.environ.get('ORIGEM_MYSQL_PORT'),
-        "charset": os.environ.get('ORIGEM_MYSQL_CHARSET'),
-        "database": os.environ.get('ORIGEM_MYSQL_DATABASE'),
-        "user": os.environ.get('ORIGEM_MYSQL_USER'),
-        "password": os.environ.get('ORIGEM_MYSQL_PASSWORD')
+         "host": os.environ.get('ORIGEM_MYSQL_HOST'),
+         "port": os.environ.get('ORIGEM_MYSQL_PORT'),
+         "charset": os.environ.get('ORIGEM_MYSQL_CHARSET'),
+         "database": os.environ.get('ORIGEM_MYSQL_DATABASE'),
+         "user": os.environ.get('ORIGEM_MYSQL_USER'),
+         "password": os.environ.get('ORIGEM_MYSQL_PASSWORD')
     }
-
     db_destino = {
-        "host": os.environ.get('DESTINO_MYSQL_HOST'),
-        "port": os.environ.get('DESTINO_MYSQL_PORT'),
-        "charset": os.environ.get('DESTINO_MYSQL_CHARSET'),
-        "database": os.environ.get('DESTINO_MYSQL_DATABASE'),
-        "user": os.environ.get('DESTINO_MYSQL_USER'),
-        "password": os.environ.get('DESTINO_MYSQL_PASSWORD')
-    }
+         "host": os.environ.get('DESTINO_MYSQL_HOST'),
+         "port": os.environ.get('DESTINO_MYSQL_PORT'),
+         "charset": os.environ.get('DESTINO_MYSQL_CHARSET'),
+         "database": os.environ.get('DESTINO_MYSQL_DATABASE'),
+         "user": os.environ.get('DESTINO_MYSQL_USER'),
+         "password": os.environ.get('DESTINO_MYSQL_PASSWORD')
+     }
 
     logger.info("Variáveis de ambiente carregadas para origem e destino")
 except Exception as e:

@@ -153,8 +153,6 @@ def inference_manager(model_tag):
             anomaly_detected = float(data_reconstructions_loss) > float(model_threshold)
             if anomaly_detected:
                 logger.info("Anomalia detectada")
-            #print(anomaly_detected)
-            #print(tf.math.less(data_reconstructions_loss, model_threshold))
 
             # Montar os dados para API (ECG)
             inference_ecg_data = {
@@ -166,7 +164,7 @@ def inference_manager(model_tag):
 
             # Enviando dados para a API (ECG)
 
-            #api_client(inference_ecg_data, api_environment['api_host'], api_environment['api_port'], api_environment['ecg_route'])
+            api_client(inference_ecg_data, api_environment['api_host'], api_environment['api_port'], api_environment['ecg_route'])
             
             # Enviar dados para a API (predictions)
             prediction_data = {
@@ -181,7 +179,7 @@ def inference_manager(model_tag):
             for i, value in enumerated_predictions:
                 prediction_data["values"].append(float(value))
 
-            #api_client(prediction_data, api_environment['api_host'], api_environment['api_port'], api_environment['predictions_route'])
+            api_client(prediction_data, api_environment['api_host'], api_environment['api_port'], api_environment['predictions_route'])
          
             time.sleep(2)
 

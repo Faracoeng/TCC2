@@ -47,8 +47,8 @@ def get_train_data():
     try:
         start_date = get_environment_variables()["begin_date"],#"2023-11-24" 
         end_date = get_environment_variables()["end_date"],#"2023-11-28"
-        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
-        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+        start_date = datetime.strptime(start_date[0], '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_date[0], '%Y-%m-%d').date()
         raw_data = ecg.get_ECG_train_data(start_date, end_date)
         logger.info("Dados de treinamento obtidos da base de dados")
         return raw_data
