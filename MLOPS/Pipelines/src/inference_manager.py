@@ -159,7 +159,7 @@ def inference_manager(model_tag):
                 "dt_measure": datetime.utcnow().isoformat(),
                 "is_anomalous": anomaly_detected,
                 "model_tag": model_tag,
-                "values": normalazed_inference_data[0]  # Convertendo o array NumPy para uma lista
+                "values": normalazed_inference_data[0].numpy().tolist()  # Convertendo o array NumPy para uma lista
             }
 
             # Enviando dados para a API (ECG)

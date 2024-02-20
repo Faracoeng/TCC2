@@ -5,9 +5,10 @@ volumes:
 
 services:
   app:
-    build:
-      context: ./
-      dockerfile: Dockerfile
+    #build:
+    #  context: ./
+    #  dockerfile: Dockerfile
+    image:  localhost:8082/results_api:v0.0.1
     volumes:
       - .:/src
     network_mode: host

@@ -30,8 +30,8 @@ git tag -a $TAG -m "Versão $TAG"
 #git push origin $tag
 
 # Construindo a imagem Docker do pipelines
-docker build -t $NEXUS_HOST:8882/pipelines:$TAG -f Pipelines/Dockerfile ./Pipelines
-echo "docker push $NEXUS_HOST:8082/pipelines:$TAG"
+docker build -t $NEXUS_HOST:8082/pipelines:$TAG -f Pipelines/Dockerfile ./Pipelines
+docker push $NEXUS_HOST:8082/pipelines:$TAG
 
 # Construindo a imagem Docker da API de resultados
 docker build -t $NEXUS_HOST:8082/results_api:$TAG -f Results_API/Dockerfile ./Results_API
