@@ -63,36 +63,34 @@ def undo_normalization(data, min_val, max_val):
 
 def plot_and_update_data():
     # Obter dados do ECG e previsões
+    
     pontos_ecg, model_tag, is_anomalous, original_ecg_dataframe = get_ECG_inference_data()
     pontos_predictions, model_tag_predictions = get_predictions()
     max_value, min_value = get_model_max_min_values(model_tag)
 
     # Adicionar um título dinâmico com base na anomalia do ECG
-    if is_anomalous:
+    if is_anomalous == 0:
         plt.title('ECG definido como Anômalo')
     else:
         plt.title('ECG definido como Normal')
 
 
-    # Calcular o erro absoluto entre o ECG original e as previsões
-    #erro = np.abs(pontos_ecg - pontos_predictions)
     plt.plot(pontos_ecg, 'b')
     plt.plot(pontos_predictions, 'r')
     plt.fill_between(np.arange(len(pontos_ecg)), pontos_ecg, pontos_predictions, color='lightcoral')
     plt.legend(labels=["Input", "Reconstruction", "Error"])
     st.pyplot(plt.gcf())  # Exibe o gráfico no Streamlit
-    pontos_ecg = undo_normalization(pontos_ecg, min_value, max_value)
     # Adicionar um checkbox na interface do usuário
-    is_anomalo = st.checkbox("Auditoria humana sobre o resultado. Selecione o checkbox para rotular o ECG como Anômalo!!! Ou apenas clique em 'OK' para manter o rótulo defnido pelo Modelo.")
+    is_anomalo = st.checkbox("Auditoria humana sobre o resultado. Selecione o checkbox para rotular o ECG como Anômalo!!! Clique em 'OK' para confirmar!.")
 
     # Adicionar um botão "OK"
     if st.button("OK"):
         # Lógica para enviar feedback para o backend com base no valor do checkbox
         # Para atualizar se ECG é anôlamo ou não
         if is_anomalo:
-                original_ecg_dataframe.iloc[0, 2] = 1  
+            original_ecg_dataframe.at[0, 'is_anomalous'] = 1  
         else:
-            original_ecg_dataframe.iloc[0, 2] = 0  
+            original_ecg_dataframe.at[0, 'is_anomalous'] = 0   
         
         # Remover a primeira coluna (coluna 'id')     
         original_ecg_dataframe = original_ecg_dataframe.drop(columns=['id'])
@@ -100,9 +98,11 @@ def plot_and_update_data():
         original_ecg_dataframe = original_ecg_dataframe.drop(columns=['model_tag'])
 
         # Reorganizar as colunas para corresponder à estrutura da tabela ECG
-        original_ecg_dataframe = original_ecg_dataframe[['dt_measure', 'is_anomalous'] + [str(i) for i in range(140)]]        
+        original_ecg_dataframe = original_ecg_dataframe[['dt_measure', 'is_anomalous'] + [str(i) for i in range(140)]] 
+        logger.info(f"Após reorganizar: {original_ecg_dataframe}")       
         # Desnormalizando para armazenar na tabela de treinamento
         original_ecg_dataframe.iloc[:, 2:] = undo_normalization(original_ecg_dataframe.iloc[:, 2:], min_value, max_value)
+        logger.info(f"Após Desnormalizar: {original_ecg_dataframe}")
         st.write("Feedback enviado para o backend. Conjunto de dados atualizado e inserido na base de treinamento:")
         insert_dataframe_to_database(get_session_Pipelines(), original_ecg_dataframe)
         st.write(original_ecg_dataframe)

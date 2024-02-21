@@ -5,7 +5,7 @@ from typing import List
 class InferenceECGCreateSchema(BaseModel):
     values: List[float]
     dt_measure: datetime
-    is_anomalous: bool
+    is_anomalous: int
     model_tag: str
 
     #@validator("values")

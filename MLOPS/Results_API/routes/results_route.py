@@ -37,7 +37,7 @@ def create_inference_ecg(inference_data: InferenceECGCreateSchema, db: Session =
         db.add(inference_ecg)
         db.commit()
         db.refresh(inference_ecg)
-        logger.info("Inferência ECG criada com sucesso")
+        logger.info("ECG criado com sucesso")
         #return inference_ecg
     except Exception as e:
         import traceback

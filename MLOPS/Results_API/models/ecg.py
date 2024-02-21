@@ -8,7 +8,7 @@ class InferenceECG(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     dt_measure = Column(DateTime, nullable=True)
-    is_anomalous = Column(Boolean, default=False)
+    is_anomalous = Column(Integer, default=False)
     model_tag = Column(String(80))  # Tag do modelo
 
     # Adicionando colunas para os números 0 até 139

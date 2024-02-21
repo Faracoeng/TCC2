@@ -150,8 +150,10 @@ def inference_manager(model_tag):
 
             #print(data_reconstructions_loss)
             # Se o erro da inferência for maior que o threshold do modelo utilizado, então é uma anomalia
-            anomaly_detected = float(data_reconstructions_loss) > float(model_threshold)
-            if anomaly_detected:
+            if float(data_reconstructions_loss) > float(model_threshold):
+                anomaly_detected = 0
+            else: anomaly_detected = 1
+            if anomaly_detected==0:
                 logger.info("Anomalia detectada")
 
             # Montar os dados para API (ECG)
