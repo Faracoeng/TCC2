@@ -88,9 +88,9 @@ def plot_and_update_data():
         # Lógica para enviar feedback para o backend com base no valor do checkbox
         # Para atualizar se ECG é anôlamo ou não
         if is_anomalo:
-            original_ecg_dataframe.at[0, 'is_anomalous'] = 1  
+            original_ecg_dataframe.at[0, 'is_anomalous'] = 0  
         else:
-            original_ecg_dataframe.at[0, 'is_anomalous'] = 0   
+            original_ecg_dataframe.at[0, 'is_anomalous'] = 1   
         
         # Remover a primeira coluna (coluna 'id')     
         original_ecg_dataframe = original_ecg_dataframe.drop(columns=['id'])
